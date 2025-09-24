@@ -178,6 +178,24 @@ def search_pubmed(query: str,
         traceback.print_exc()
         return []
 
+@mcp.prompt(name="precise_pubmed_query", description="Craft a precise PubMed Boolean query from a natural language information need.")
+def precise_pubmed_query(information_need: str) -> str:
+    """Returns a very brief prompt (in English) so a model generates a SINGLE concise query
+    to search the topic in PubMed. Advanced options are ignored; signature kept for compatibility.
+
+    Main parameter:
+        information_need: Topic or information need.
+    """
+    tema = information_need.strip() or "(specify a topic)"
+    prompt = (
+        "Generate one brief, precise PubMed query for the given topic. "
+        "Then run the search (tool: search_pubmed) and return ONLY a list of articles in the following format, "
+        "one per line, with no extra text and no JSON:\n\n"
+        "1. Title: <article title> Author: <first author> Journal: <journal> Year: <year> URL: <url>\n"
+        f"Topic: {tema}\n\n"
+    )
+    return prompt
+
 if __name__ == '__main__':
     #parser = argparse.ArgumentParser(description="Search PubMed for articles.")
     #parser.add_argument("query", type=str, help="The search query for PubMed.")
