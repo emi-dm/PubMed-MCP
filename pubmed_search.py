@@ -1,28 +1,99 @@
 from Bio import Entrez
 from fastmcp import FastMCP
+from typing import List
+from urllib.error import HTTPError
 
 # Configure Entrez email (required by NCBI)
 Entrez.email = 'user@example.com'  # Replace with your actual email
 
 mcp = FastMCP(name="PubMed-MCP")
 
-@mcp.tool
-def search_pubmed(query, max_results=10):
-    #TODO: Add error handling and logging
+def _build_field_query(user_query: str, in_title: bool, in_abstract: bool, in_keywords: bool) -> str:
+    """Build a PubMed (Entrez) query applying field restrictions.
+
+    Fields mapping used:
+    - Title: [ti]
+    - Abstract: [ab]
+    - Title/Abstract convenience: [tiab]
+    - Keywords (Other Term): [ot] (Author provided keywords)
+    - MeSH Headings: [mh]
+
+    Strategy:
+    - If only one of title or abstract is selected, use that specific field tag.
+    - If both selected, use tiab (lets PubMed optimize) plus ot/mh if requested.
+    - Keywords option expands with OR clauses for ot and mh.
+    - Parentheses ensure proper boolean grouping.
     """
-    Searches PubMed for a given query and returns a list of articles as JSON objects.
+    core_clauses: List[str] = []
+
+    if in_title and in_abstract:
+        # tiab covers both Title and Abstract text
+        core_clauses.append(f"({user_query})[tiab]")
+    elif in_title:
+        core_clauses.append(f"({user_query})[ti]")
+    elif in_abstract:
+        core_clauses.append(f"({user_query})[ab]")
+    else:
+        # No field restriction for title/abstract selected, let user_query as-is (PubMed default: all fields)
+        core_clauses.append(f"({user_query})")
+
+    if in_keywords:
+        # Include author keywords (ot) and MeSH terms (mh) as expansion
+        keywords_clause = f"({user_query})[ot] OR ({user_query})[mh]"
+        # Combine with previous core clauses using OR to broaden search
+        core_group = " OR ".join(core_clauses)
+        combined = f"({core_group}) OR ({keywords_clause})"
+        return combined
+
+    return " OR ".join(core_clauses)
+
+
+@mcp.tool
+def search_pubmed(query: str,
+                  max_results: int = 10,
+                  title: bool = True,
+                  abstract: bool = True,
+                  keywords: bool = True):
+    """Search PubMed and return a list of article JSON objects.
+
+    Parameters:
+        query: Free-text user query; boolean operators (AND/OR/NOT) supported by PubMed.
+        max_results: Maximum number of records to retrieve (retmax).
+        title: If True, include Title field in search restriction (ti / tiab).
+        abstract: If True, include Abstract field in search restriction (ab / tiab).
+        keywords: If True, expand search to Author Keywords (ot) and MeSH Headings (mh).
+
+    Field logic:
+        - title and abstract both True => core search uses [tiab]
+        - only title True => uses [ti]
+        - only abstract True => uses [ab]
+        - neither title nor abstract True => no restriction (all fields)
+        - keywords True => additionally OR with [ot] and [mh] versions of the query
+
+    Returns:
+        List[dict]: Each dict contains pmid, title, authors, abstract, journal, publication_year,
+                    publication_month, url.
     """
     try:
+        if not isinstance(query, str) or not query.strip():
+            print("Empty query provided; returning empty result list.")
+            return []
+        if max_results <= 0:
+            max_results = 10
+
+        # Build refined query with field tags
+        refined_query = _build_field_query(query.strip(), title, abstract, keywords)
+
         # Search PubMed for article IDs using Entrez.esearch
-        print(f"Searching for: {query}")
-        handle = Entrez.esearch(db="pubmed", term=query, retmax=str(max_results))
+        print(f"Searching for: {refined_query}")
+        handle = Entrez.esearch(db="pubmed", term=refined_query, retmax=str(max_results))
         search_record = Entrez.read(handle)
         handle.close()
         
         # Get the list of PMIDs
         pmid_list = search_record["IdList"]
         total_count = search_record["Count"]
-        
+
         print(f"Se encontraron {total_count} artículos. Los primeros {len(pmid_list)} PMIDs son: {pmid_list}")
         
         if not pmid_list:
@@ -98,6 +169,9 @@ def search_pubmed(query, max_results=10):
         print(f"Successfully processed {len(papers_list)} articles.")
         return papers_list
         
+    except HTTPError as http_err:
+        print(f"HTTP error during Entrez request: {http_err}")
+        return []
     except Exception as e:
         print(f"An error occurred: {e}")
         import traceback

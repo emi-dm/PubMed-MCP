@@ -130,9 +130,29 @@ Searches PubMed for articles matching the given query.
 **Parameters:**
 - `query` (string): The search query
 - `max_results` (integer, optional): Maximum number of results to return (default: 10)
+ - `title` (bool, optional): If true (default) search in Title field
+ - `abstract` (bool, optional): If true (default) search in Abstract field
+ - `keywords` (bool, optional): If true (default) expand search with Author Keywords (`[ot]`) and MeSH Headings (`[mh]`)
+
+**Field logic:**
+- `title=True` and `abstract=True` -> query applied as `(your terms)[tiab]`
+- Only `title=True` -> `(your terms)[ti]`
+- Only `abstract=True` -> `(your terms)[ab]`
+- Both false -> no field tag (all fields)
+- `keywords=True` -> OR-expanded with `(your terms)[ot] OR (your terms)[mh]`
+
+**Example refined queries:**
+
+```text
+query = "breast cancer metastasis"
+title=True, abstract=True, keywords=True -> (breast cancer metastasis)[tiab] OR ((breast cancer metastasis)[ot] OR (breast cancer metastasis)[mh])
+title=True, abstract=False, keywords=False -> (breast cancer metastasis)[ti]
+title=False, abstract=False, keywords=True -> (breast cancer metastasis) OR ((breast cancer metastasis)[ot] OR (breast cancer metastasis)[mh])
+```
 
 **Returns:**
 A list of article objects containing:
+
 - `pmid`: PubMed ID
 - `title`: Article title
 - `authors`: List of author names
