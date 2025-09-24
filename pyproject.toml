@@ -1,0 +1,11 @@
+[project]
+name = "pubmed-mcp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "biopython>=1.85",
+    "fastmcp>=2.12.3",
+    "requests>=2.32.5",
+]
