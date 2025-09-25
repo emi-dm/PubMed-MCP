@@ -8,7 +8,7 @@ Entrez.email = 'user@example.com'  # Replace with your actual email
 
 mcp = FastMCP(name="PubMed-MCP")
 
-def _build_field_query(user_query: str, in_title: bool, in_abstract: bool, in_keywords: bool) -> str:
+async def _build_field_query(user_query: str, in_title: bool, in_abstract: bool, in_keywords: bool) -> str:
     """Build a PubMed (Entrez) query applying field restrictions.
 
     Fields mapping used:
@@ -49,7 +49,7 @@ def _build_field_query(user_query: str, in_title: bool, in_abstract: bool, in_ke
 
 
 @mcp.tool
-def search_pubmed(query: str,
+async def search_pubmed(query: str,
                   max_results: int = 10,
                   title: bool = True,
                   abstract: bool = True,
@@ -179,7 +179,7 @@ def search_pubmed(query: str,
         return []
 
 @mcp.prompt(name="precise_pubmed_query", description="Craft a precise PubMed Boolean query from a natural language information need.")
-def precise_pubmed_query(information_need: str) -> str:
+async def precise_pubmed_query(information_need: str) -> str:
     """Returns a very brief prompt (in English) so a model generates a SINGLE concise query
     to search the topic in PubMed. Advanced options are ignored; signature kept for compatibility.
 
