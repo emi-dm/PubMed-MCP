@@ -15,36 +15,36 @@ A Model Context Protocol (MCP) server that provides tools for searching PubMed a
 
 ```mermaid
 graph TB
-    A[Usuario] --> B[MCP Server<br/>pubmed_search.py]
-    B --> C[Función search_pubmed]
-    C --> D[Entrez.esearch<br/>Búsqueda en PubMed]
-    D --> E[Base de datos PubMed<br/>NCBI]
-    E --> F[Lista de PMIDs]
-    F --> G[Entrez.efetch<br/>Obtener detalles]
-    G --> E
-    G --> H[Registros XML<br/>de artículos]
-    H --> I[Procesamiento de datos]
-    I --> J[Extracción de:<br/>- Título<br/>- Autores<br/>- Abstract<br/>- Journal<br/>- Fecha]
-    J --> K[Lista de artículos<br/>en formato JSON]
-    K --> L[Respuesta al usuario]
+  A[User] --> B[MCP Server<br/>pubmed_search.py]
+  B --> C[search_pubmed function]
+  C --> D[Entrez.esearch<br/>Search in PubMed]
+  D --> E[PubMed database<br/>NCBI]
+  E --> F[List of PMIDs]
+  F --> G[Entrez.efetch<br/>Fetch details]
+  G --> E
+  G --> H[Article XML records]
+  H --> I[Data processing]
+  I --> J[Extraction of:<br/>- Title<br/>- Authors<br/>- Abstract<br/>- Journal<br/>- Date]
+  J --> K[List of articles<br/>in JSON format]
+  K --> L[Response to user]
 
-    subgraph "Dependencias"
-        M[BioPython<br/>requirements.txt]
-        N[FastMCP<br/>requirements.txt]
-    end
+  subgraph "Dependencies"
+    M[BioPython<br/>requirements.txt]
+    N[FastMCP<br/>requirements.txt]
+  end
 
-    B -.-> M
-    B -.-> N
+  B -.-> M
+  B -.-> N
 
-    subgraph "Configuración"
-        O[Entrez.email<br/>Configurado en código]
-    end
+  subgraph "Configuration"
+    O[Entrez.email<br/>Configured in code]
+  end
 
-    C -.-> O
+  C -.-> O
 
-    style A fill:#e1f5fe
-    style L fill:#c8e6c9
-    style E fill:#fff3e0
+  style A fill:#e1f5fe
+  style L fill:#c8e6c9
+  style E fill:#fff3e0
 ```
 
 ## Installation
