@@ -15,7 +15,7 @@ A Model Context Protocol (MCP) server that provides tools for searching PubMed a
 
 ```mermaid
 graph TB
-  A[User] --> B[MCP Server<br/>pubmed_search.py]
+  A[User] --> B[MCP Server<br/>pubmed_server.py]
   B --> C[search_pubmed function]
   C --> D[Entrez.esearch<br/>Search in PubMed]
   D --> E[PubMed database<br/>NCBI]
@@ -60,7 +60,7 @@ graph TB
    uv sync
    ```
 
-3. Configure your email in `pubmed_search.py`:
+3. Configure your email in `pubmed_server.py`:
    ```python
    Entrez.email = 'your-email@example.com'  # Replace with your actual email
    ```
@@ -76,7 +76,7 @@ The configuration is already set up to use `uv` for running the server:
   "servers": {
     "pubmed-mcp": {
       "command": "uv",
-      "args": ["run", "${workspaceFolder}/pubmed_search.py"]
+      "args": ["run", "${workspaceFolder}/pubmed_server.py"]
     }
   }
 }
@@ -97,7 +97,7 @@ If you prefer to use `pip` instead of `uv`, you can modify the `.vscode/mcp.json
   "servers": {
     "pubmed-mcp": {
       "command": "python",
-      "args": ["${workspaceFolder}/pubmed_search.py"]
+      "args": ["${workspaceFolder}/pubmed_server.py"]
     }
   }
 }
@@ -116,7 +116,7 @@ Make sure your virtual environment is activated when using this configuration.
 Run the MCP server:
 
 ```bash
-python pubmed_search.py
+python pubmed_server.py
 ```
 
 The server will start and listen for MCP protocol messages on stdin/stdout.
