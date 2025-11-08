@@ -4,6 +4,10 @@ A Model Context Protocol (MCP) server that provides tools for searching PubMed a
 
 **Author:** Emilio Delgado Muñoz
 
+<a href="https://glama.ai/mcp/servers/@emi-dm/PubMed-MCP">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@emi-dm/PubMed-MCP/badge" alt="PubMed Server MCP server" />
+</a>
+
 ## Features
 
 - Search PubMed for articles based on queries
